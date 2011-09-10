@@ -20,6 +20,7 @@ function processQueue() {
         collection.find(function(err, cursor) {
             cursor.each(function(err, queueElement) {
                 db.db.collection('timeline', function(err, collection2) {
+                      if (queueElement.followers) {
                       queueElement.followers.forEach(function(id) {
                         sys.puts('queueElement id = ' + queueElement._id + ' follower id = ' + id);
                         collection2.update({user_id : id},
@@ -31,7 +32,8 @@ function processQueue() {
 	                        collection.remove({_id : queueElement._id});
                             sys.puts('removed '+queueElement._id);
 	                     });
-                    });
+                      });
+                    }
 
                 });
             });

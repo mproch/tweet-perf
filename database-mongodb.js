@@ -12,18 +12,28 @@ function Database() {
 exports.Database = Database;
 
 Database.prototype.selectTweets = function (username, callback) {
-	this.db.collection('tweets', function(err, collection) {
-
-        collection.find({name : username}, {statuses : 1}, function(err, cursor) {
-            cursor.toArray(function(err, docs) {
-                callback(docs);
-            });
-          });
-   });
+    var that = this;
+    this.db.collection('users', function(err, collection) {
+        collection.find({screen_name : username}).nextObject(function(err, user) {
+             callback(user.statuses);
+        });
+    });
 }
 
 
-Database.prototype.selectTime = function (username, callback) {
+Database.prototype.selectTimeline = function (username, callback) {
+    var that = this;
+    this.db.collection('users', function(err, collection) {
+        collection.find({screen_name : username}).nextObject(function(err, user) {
+        	that.db.collection('timeline', function(err, collection2) {
+             collection2.find({user_id : user.id}, function(err, cursor) {
+                 cursor.toArray(function(err, docs) {
+                     callback(docs);
+                 });
+               });
+            });
+        });
+    });
 
 
 
@@ -31,10 +41,16 @@ Database.prototype.selectTime = function (username, callback) {
 
 
 Database.prototype.insertTweet = function (name, status, callback) {
-    var now = new Date();
-	this.db.collection('tweets', function(err, collection) {
-	    collection.update({name:name},
-	        {$push : {statuses : {createdAt : new Date(), text : status}}});
-	    callback ({'created_at': now});
-	});
+    var that = this;
+    this.db.collection('users', function(err, collection) {
+        collection.find({screen_name : name}).nextObject(function(err, user) {
+            var newStatus = {text : status, created_at : new Date()};
+            collection.update({id : user.id}, {$push : {statuses : newStatus}  });
+            that.db.collection('queue', function(err, collection2) {
+                        var queueElement = {status : newStatus, followers : user.followers};
+                        collection2.insert(queueElement);
+                        callback(newStatus)
+            });
+        });
+    });
 }
