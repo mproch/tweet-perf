@@ -6,19 +6,52 @@ function Database() {
 	var that = this;
 	connect(Db.DEFAULT_URL, function(err, db) {
 	  that.db = db;
+	  //importQueue();
 	  //that.insert('Maciek','bela', function () {that.db.close()});
 	});
 };
 
+
 exports.Database = Database;
 var db = new Database();
-var mysqlclient = mysql.createClient({
+
+
+//var mysqlclient = [];
+
+mysqlclient = mysql.createClient({
 	user: 'twitter',
 	password: 'twitter',
 	host: 'localhost',
 	port: 3306,
-	database: 'twitter1'
+	database: 'twitter3'
 });
+/*
+mysqlclient[1] = mysql.createClient({
+	user: 'twitter',
+	password: 'twitter',
+	host: 'localhost',
+	port: 3306,
+	database: 'twitter2'
+});
+
+mysqlclient[2] = mysql.createClient({
+	user: 'twitter',
+	password: 'twitter',
+	host: 'localhost',
+	port: 3306,
+	database: 'twitter3'
+});
+
+mysqlclient[3] = mysql.createClient({
+	user: 'twitter',
+	password: 'twitter',
+	host: 'localhost',
+	port: 3306,
+	database: 'twitter4'
+});
+  */
+/*
+mysqlclient.forEach(function(mysqlclient) {
 
 mysqlclient.query('SELECT * FROM users',
 			function(err, results, fields) {
@@ -53,7 +86,7 @@ mysqlclient.query('SELECT distinct * FROM followers',
 );
 
 }
-
+*/
 
  function importStatuses() {
  mysqlclient.query('SELECT  * FROM statuses',
@@ -64,28 +97,35 @@ mysqlclient.query('SELECT distinct * FROM followers',
                         db.db.collection('users', function(err, collection) {
  	                     collection.update({id:val.user_id},
  	                     {$push : {statuses : status}});
-
-
- 	                     var cursor = collection.find({id:val.user_id}, {followers:1}, function (err, cursor) {
-
-                         cursor.each(function (err, followers) {
-
-
- 	                         console.dir(followers);
-
- 	                     }
-
- 	                   );
- 	                   });
-// 	                   db.db.collection('queue', function(err, collection) {
-
-// 	                   });
                      });
                  });
-                 db.db.close();
                  sys.puts('koniec queue');
-                 process.exit();
+                 //importQueue();
  			}
  );
 
  }
+
+
+importStatuses();
+function importQueue() {
+     db.db.collection('users', function(err, collection) {
+
+        collection.find(function(err, cursor) {
+            cursor.each(function(err, user) {
+                db.db.collection('queue', function(err, collection) {
+                    if (user && user.statuses) {
+                      console.dir(user);
+                      user.statuses.forEach(function(status) {
+                        var queueElement = {status : status, followers : user.followers};
+                        collection.insert(queueElement);
+                     });
+                    }
+                });
+            });
+        });
+
+     });
+//                 db.db.close();
+//                 process.exit();
+}
