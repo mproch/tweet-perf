@@ -18,6 +18,7 @@ var db = new Database();
 
 //var mysqlclient = [];
 
+
 mysqlclient = mysql.createClient({
 	user: 'twitter',
 	password: 'twitter',
@@ -25,8 +26,7 @@ mysqlclient = mysql.createClient({
 	port: 3306,
 	database: 'twitter3'
 });
-/*
-mysqlclient[1] = mysql.createClient({
+/*mysqlclient[1] = mysql.createClient({
 	user: 'twitter',
 	password: 'twitter',
 	host: 'localhost',
@@ -50,8 +50,8 @@ mysqlclient[3] = mysql.createClient({
 	database: 'twitter4'
 });
   */
-/*
-mysqlclient.forEach(function(mysqlclient) {
+
+//mysqlclient.forEach(function(mysqlclient) {
 
 mysqlclient.query('SELECT * FROM users',
 			function(err, results, fields) {
@@ -86,17 +86,16 @@ mysqlclient.query('SELECT distinct * FROM followers',
 );
 
 }
-*/
 
  function importStatuses() {
- mysqlclient.query('SELECT  * FROM statuses',
+ mysqlclient.query('SELECT  * FROM statuses order by user_id',
  			function(err, results, fields) {
                  results.forEach(
                      function(val, index) {
                         var status = { id : val.id, text: val.text, created_at: val.created_at};
                         db.db.collection('users', function(err, collection) {
  	                     collection.update({id:val.user_id},
- 	                     {$push : {statuses : status}});
+ 	                     {$push : {statuses : status}}, function() {sys.puts(val.user_id+" "+val.id);});
                      });
                  });
                  sys.puts('koniec queue');
@@ -107,7 +106,7 @@ mysqlclient.query('SELECT distinct * FROM followers',
  }
 
 
-importStatuses();
+//importStatuses();
 function importQueue() {
      db.db.collection('users', function(err, collection) {
 
@@ -115,7 +114,7 @@ function importQueue() {
             cursor.each(function(err, user) {
                 db.db.collection('queue', function(err, collection) {
                     if (user && user.statuses) {
-                      console.dir(user);
+                      //console.dir(user);
                       user.statuses.forEach(function(status) {
                         var queueElement = {status : status, followers : user.followers};
                         collection.insert(queueElement);
