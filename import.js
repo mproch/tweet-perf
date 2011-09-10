@@ -63,12 +63,27 @@ mysqlclient.query('SELECT distinct * FROM followers',
                         var status = { id : val.id, text: val.text, created_at: val.created_at};
                         db.db.collection('users', function(err, collection) {
  	                     collection.update({id:val.user_id},
- 	                     {$push : {followers : val.follower_id}});
+ 	                     {$push : {statuses : status}});
+
+
+ 	                     var cursor = collection.find({id:val.user_id}, {followers:1}, function (err, cursor) {
+
+                         cursor.each(function (err, followers) {
+
+
+ 	                         console.dir(followers);
+
+ 	                     }
+
+ 	                   );
  	                   });
-                     }
-                 )
+// 	                   db.db.collection('queue', function(err, collection) {
+
+// 	                   });
+                     });
+                 });
                  db.db.close();
-                 sys.puts('koniec followers');
+                 sys.puts('koniec queue');
                  process.exit();
  			}
  );
