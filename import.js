@@ -6,7 +6,7 @@ function Database() {
 	var that = this;
 	connect(Db.DEFAULT_URL, function(err, db) {
 	  that.db = db;
-	  //importQueue();
+	  importQueue();
 	  //that.insert('Maciek','bela', function () {that.db.close()});
 	});
 };
@@ -18,15 +18,15 @@ var db = new Database();
 
 //var mysqlclient = [];
 
-
+/*
 mysqlclient = mysql.createClient({
 	user: 'twitter',
 	password: 'twitter',
 	host: 'localhost',
 	port: 3306,
-	database: 'twitter3'
+	database: 'twitter4'
 });
-/*mysqlclient[1] = mysql.createClient({
+mysqlclient[1] = mysql.createClient({
 	user: 'twitter',
 	password: 'twitter',
 	host: 'localhost',
@@ -52,7 +52,7 @@ mysqlclient[3] = mysql.createClient({
   */
 
 //mysqlclient.forEach(function(mysqlclient) {
-
+/*
 mysqlclient.query('SELECT * FROM users',
 			function(err, results, fields) {
                 results.forEach(
@@ -107,6 +107,7 @@ mysqlclient.query('SELECT distinct * FROM followers',
 
 
 //importStatuses();
+*/
 function importQueue() {
      db.db.collection('users', function(err, collection) {
 
