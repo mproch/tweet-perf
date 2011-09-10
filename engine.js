@@ -10,7 +10,7 @@ function Engine() {
 
 exports.Engine = Engine;
 
-var databaseModule = require('./database-mysql');
+var databaseModule = require('./database-mongodb');
 var database = new databaseModule.Database();
 
 Engine.prototype.getTweets = function (username, callback) {

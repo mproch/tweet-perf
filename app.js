@@ -33,25 +33,15 @@ var engine = new engineModule.Engine();
 server.get('/statuses/user_timeline.json', function(req, res) {
 
 	if (req.params.screen_name) {
-
 		engine.getTweets(req.params.screen_name, function(tweets) {
-		
 			if (tweets) {
-			
 				res.send(200, tweets);
-			
 			} else {
-			
 				res.send(200, []);
-				
 			}
-		
 		});
-
 	} else {
-
 		res.send(400);
-
 	}
 
 });
@@ -60,7 +50,7 @@ server.get('/statuses/user_timeline.json', function(req, res) {
  * Posting a tweet, example:
  * POST /statuses/update.json?status=I%20like%20pancakes&screen_name=adamus
  */
-server.post('/statuses/update.json', function(req, res) {
+server.get('/statuses/update.json', function(req, res) {
 
 	if (req.params.screen_name && req.params.status) {
 
