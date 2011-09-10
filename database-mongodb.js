@@ -34,9 +34,6 @@ Database.prototype.selectTimeline = function (username, callback) {
             });
         });
     });
-
-
-
 }
 
 

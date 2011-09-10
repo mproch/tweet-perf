@@ -11,7 +11,10 @@ var server = restify.createServer(options);
 server.listen(3000);
 
 var engineModule = require('./engine');
+
 var engine = new engineModule.Engine();
+
+require('./queue').setMyTimeout();
 
 //------------------------------------------------------------------------------
 

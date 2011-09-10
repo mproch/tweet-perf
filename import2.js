@@ -20,11 +20,11 @@ var db = new Database();
 
 
 mysqlclient = mysql.createClient({
-	user: 'root',
-	password: 'morion',
+	user: 'twitter',
+	password: 'twitter',
 	host: 'localhost',
 	port: 3306,
-	database: 'dev'
+	database: 'twitter4'
 });
 var user={};
 var oldId=0;
