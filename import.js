@@ -1,5 +1,6 @@
 sys = require('sys');
 var Db = require('mongodb').Db, connect = require('mongodb').connect;
+var mysql = require('mysql');
 
 function Database() {
 	var that = this;
@@ -10,31 +11,66 @@ function Database() {
 };
 
 exports.Database = Database;
+var db = new Database();
+var mysqlclient = mysql.createClient({
+	user: 'twitter',
+	password: 'twitter',
+	host: 'localhost',
+	port: 3306,
+	database: 'twitter1'
+});
 
-Database.prototype.selectTweets = function (username, callback) {
-	this.db.collection('tweets', function(err, collection) {
+mysqlclient.query('SELECT * FROM users',
+			function(err, results, fields) {
+                results.forEach(
+                    function(val, index) {
+                       var user = {name : val.name, screen_name : val.screen_name, id : val.id};
+                       db.db.collection('users', function(err, collection) {
+	                     collection.insert(user);
+	                   });
+                    }
+                )
+                sys.puts('koniec userow');
+                importFollowers();
+			}
+);
 
-        collection.find({name : username}, {statuses : 1}, function(err, cursor) {
-            cursor.toArray(function(err, docs) {
-                callback(docs);
-            });
-          });
-   });
+function importFollowers() {
+mysqlclient.query('SELECT distinct * FROM followers',
+			function(err, results, fields) {
+                results.forEach(
+                    function(val, index) {
+                       var user = {name : val.name, screen_name : val.screen_name, id : val.id};
+                       db.db.collection('users', function(err, collection) {
+	                     collection.update({id:val.user_id},
+	                     {$push : {followers : val.follower_id}});
+	                   });
+                    }
+                )
+                sys.puts('koniec followers');
+                importStatuses();
+			}
+);
+
 }
 
 
-Database.prototype.selectTime = function (username, callback) {
+ function importStatuses() {
+ mysqlclient.query('SELECT  * FROM statuses',
+ 			function(err, results, fields) {
+                 results.forEach(
+                     function(val, index) {
+                        var status = { id : val.id, text: val.text, created_at: val.created_at};
+                        db.db.collection('users', function(err, collection) {
+ 	                     collection.update({id:val.user_id},
+ 	                     {$push : {followers : val.follower_id}});
+ 	                   });
+                     }
+                 )
+                 db.db.close();
+                 sys.puts('koniec followers');
+                 process.exit();
+ 			}
+ );
 
-
-
-}
-
-
-Database.prototype.insertTweet = function (name, status, callback) {
-    var now = new Date();
-	this.db.collection('tweets', function(err, collection) {
-	    collection.update({name:name},
-	        {$push : {statuses : {createdAt : new Date(), text : status}}});
-	    callback ({'created_at': now});
-	});
-}
+ }
